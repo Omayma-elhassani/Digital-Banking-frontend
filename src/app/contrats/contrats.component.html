@@ -1,0 +1,42 @@
+<div class="container mt-3">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4>Tous les contrats d'assurance</h4>
+      <select class="form-select w-auto" [(ngModel)]="filtreStatut">
+        <option value="">Tous les statuts</option>
+        <option value="EN_COURS">En cours</option>
+        <option value="VALIDE">Validés</option>
+        <option value="RESILIE">Résiliés</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead class="table-dark">
+          <tr><th>ID</th><th>Type</th><th>Client</th><th>Statut</th><th>Souscription</th><th>Cotisation</th><th>Durée</th><th>Couverture</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filtered">
+            <td>{{ c.id }}</td>
+            <td><span class="badge bg-primary">{{ typeOf(c) }}</span></td>
+            <td>{{ c.client?.nom }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'bg-warning': c.statut === 'EN_COURS',
+                'bg-success': c.statut === 'VALIDE',
+                'bg-secondary': c.statut === 'RESILIE'
+              }">{{ c.statut }}</span>
+            </td>
+            <td>{{ c.dateSouscription | date:'shortDate' }}</td>
+            <td>{{ c.montantCotisation | number:'1.2-2' }} DH</td>
+            <td>{{ c.dureeContrat }} mois</td>
+            <td>{{ c.tauxCouverture }}%</td>
+          </tr>
+          <tr *ngIf="filtered.length === 0">
+            <td colspan="8" class="text-center text-muted">Aucun contrat</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    </div>
+  </div>
+</div>

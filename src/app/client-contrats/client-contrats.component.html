@@ -1,0 +1,154 @@
+<div class="container mt-3" *ngIf="client">
+  <div class="card mb-3">
+    <div class="card-header"><h4>Client : {{ client.nom }} ({{ client.email }})</h4></div>
+  </div>
+
+  <div class="row">
+    <!-- Liste des contrats du client -->
+    <div class="col-md-7">
+      <div class="card mb-3">
+        <div class="card-header"><h5>Contrats souscrits</h5></div>
+        <div class="card-body">
+          <table class="table table-sm table-hover">
+            <thead class="table-dark">
+              <tr><th>ID</th><th>Type</th><th>Statut</th><th>Cotisation</th><th>Durée</th><th>Couverture</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of contrats" [class.table-warning]="selectedContrat?.id === c.id">
+                <td>{{ c.id }}</td>
+                <td>
+                  <span class="badge bg-primary" *ngIf="$any(c).marqueVehicule">AUTO</span>
+                  <span class="badge bg-info" *ngIf="$any(c).typeLogement">HABITATION</span>
+                  <span class="badge bg-success" *ngIf="$any(c).niveauCouverture">SANTE</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'bg-warning': c.statut === 'EN_COURS',
+                    'bg-success': c.statut === 'VALIDE',
+                    'bg-secondary': c.statut === 'RESILIE'
+                  }">{{ c.statut }}</span>
+                </td>
+                <td>{{ c.montantCotisation | number:'1.2-2' }} DH</td>
+                <td>{{ c.dureeContrat }} mois</td>
+                <td>{{ c.tauxCouverture }}%</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-1" (click)="selectContrat(c)">Paiements</button>
+                  <button *ngIf="c.statut === 'EN_COURS'" class="btn btn-sm btn-success me-1" (click)="handleValider(c)">Valider</button>
+                  <button *ngIf="c.statut !== 'RESILIE'" class="btn btn-sm btn-warning me-1" (click)="handleResilier(c)">Résilier</button>
+                  <button class="btn btn-sm btn-danger" (click)="handleDeleteContrat(c)">X</button>
+                </td>
+              </tr>
+              <tr *ngIf="contrats.length === 0">
+                <td colspan="7" class="text-center text-muted">Aucun contrat pour ce client</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Formulaire de souscription -->
+      <div class="card">
+        <div class="card-header"><h5>Souscrire un nouveau contrat</h5></div>
+        <div class="card-body">
+          <form [formGroup]="contratFormGroup" (ngSubmit)="handleSaveContrat()">
+            <div class="row g-2 mb-2">
+              <div class="col-md-4">
+                <label class="form-label">Type</label>
+                <select class="form-select" formControlName="type" (change)="onTypeChange()">
+                  <option value="AUTO">Automobile</option>
+                  <option value="HABITATION">Habitation</option>
+                  <option value="SANTE">Santé</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Cotisation</label>
+                <input type="number" class="form-control" formControlName="montantCotisation">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Durée (mois)</label>
+                <input type="number" class="form-control" formControlName="dureeContrat">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Couverture (%)</label>
+                <input type="number" class="form-control" formControlName="tauxCouverture">
+              </div>
+            </div>
+
+            <!-- Champs Automobile -->
+            <div class="row g-2 mb-2" *ngIf="contratFormGroup.value.type === 'AUTO'">
+              <div class="col-md-4"><input class="form-control" placeholder="N° immatriculation" formControlName="numeroImmatriculation"></div>
+              <div class="col-md-4"><input class="form-control" placeholder="Marque" formControlName="marqueVehicule"></div>
+              <div class="col-md-4"><input class="form-control" placeholder="Modèle" formControlName="modeleVehicule"></div>
+            </div>
+
+            <!-- Champs Habitation -->
+            <div class="row g-2 mb-2" *ngIf="contratFormGroup.value.type === 'HABITATION'">
+              <div class="col-md-4">
+                <select class="form-select" formControlName="typeLogement">
+                  <option value="APPARTEMENT">Appartement</option>
+                  <option value="MAISON">Maison</option>
+                  <option value="LOCAL_COMMERCIAL">Local commercial</option>
+                </select>
+              </div>
+              <div class="col-md-5"><input class="form-control" placeholder="Adresse" formControlName="adresseLogement"></div>
+              <div class="col-md-3"><input type="number" class="form-control" placeholder="Superficie (m²)" formControlName="superficie"></div>
+            </div>
+
+            <!-- Champs Santé -->
+            <div class="row g-2 mb-2" *ngIf="contratFormGroup.value.type === 'SANTE'">
+              <div class="col-md-6">
+                <select class="form-select" formControlName="niveauCouverture">
+                  <option value="BASIQUE">Basique</option>
+                  <option value="INTERMEDIAIRE">Intermédiaire</option>
+                  <option value="PREMIUM">Premium</option>
+                </select>
+              </div>
+              <div class="col-md-6"><input type="number" class="form-control" placeholder="Nombre de personnes couvertes" formControlName="nombrePersonnesCouvertes"></div>
+            </div>
+
+            <button class="btn btn-primary" [disabled]="contratFormGroup.invalid">Souscrire</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paiements -->
+    <div class="col-md-5">
+      <div class="card" *ngIf="selectedContrat">
+        <div class="card-header"><h5>Paiements du contrat #{{ selectedContrat.id }}</h5></div>
+        <div class="card-body">
+          <table class="table table-sm">
+            <thead><tr><th>Date</th><th>Type</th><th>Montant</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let p of paiements">
+                <td>{{ p.date | date:'shortDate' }}</td>
+                <td><span class="badge bg-secondary">{{ p.type }}</span></td>
+                <td>{{ p.montant | number:'1.2-2' }} DH</td>
+              </tr>
+              <tr *ngIf="paiements.length === 0">
+                <td colspan="3" class="text-center text-muted">Aucun paiement</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <form [formGroup]="paiementFormGroup" (ngSubmit)="handleAjouterPaiement()" class="mt-2">
+            <div class="row g-2">
+              <div class="col-5"><input type="number" class="form-control form-control-sm" placeholder="Montant" formControlName="montant"></div>
+              <div class="col-5">
+                <select class="form-select form-select-sm" formControlName="type">
+                  <option value="MENSUALITE">Mensualité</option>
+                  <option value="PAIEMENT_ANNUEL">Annuel</option>
+                  <option value="PAIEMENT_EXCEPTIONNEL">Exceptionnel</option>
+                </select>
+              </div>
+              <div class="col-2"><button class="btn btn-sm btn-success" [disabled]="paiementFormGroup.invalid">+</button></div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div *ngIf="!selectedContrat" class="alert alert-info">Sélectionnez un contrat pour voir ses paiements.</div>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+</div>

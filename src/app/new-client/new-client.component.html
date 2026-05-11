@@ -1,0 +1,26 @@
+<div class="container mt-3">
+  <div class="card">
+    <div class="card-header"><h4>Nouveau client</h4></div>
+    <div class="card-body">
+      <form [formGroup]="newClientFormGroup" (ngSubmit)="handleSaveClient()" *ngIf="newClientFormGroup">
+        <div class="mb-3">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-control" formControlName="nom">
+          <div *ngIf="newClientFormGroup.get('nom')?.invalid && newClientFormGroup.get('nom')?.touched" class="text-danger small">
+            Nom requis (min 2 caractères)
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" formControlName="email">
+          <div *ngIf="newClientFormGroup.get('email')?.invalid && newClientFormGroup.get('email')?.touched" class="text-danger small">
+            Email valide requis
+          </div>
+        </div>
+        <button class="btn btn-success" [disabled]="newClientFormGroup.invalid">Enregistrer</button>
+      </form>
+      <div *ngIf="successMessage" class="alert alert-success mt-3">{{ successMessage }}</div>
+      <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+    </div>
+  </div>
+</div>
