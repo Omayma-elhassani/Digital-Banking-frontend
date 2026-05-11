@@ -1,0 +1,29 @@
+<div class="container mt-5" style="max-width: 480px;">
+  <div class="card shadow">
+    <div class="card-header bg-dark text-white text-center">
+      <h4><i class="bi bi-shield-lock"></i> Connexion - Assurance ENSET</h4>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="loginForm" (ngSubmit)="handleLogin()" *ngIf="loginForm">
+        <div class="mb-3">
+          <label class="form-label">Nom d'utilisateur</label>
+          <input type="text" class="form-control" formControlName="username">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Mot de passe</label>
+          <input type="password" class="form-control" formControlName="password">
+        </div>
+        <button class="btn btn-primary w-100" [disabled]="loginForm.invalid">Se connecter</button>
+      </form>
+      <div *ngIf="errorMessage" class="alert alert-danger mt-3 mb-0">{{ errorMessage }}</div>
+
+      <hr/>
+      <small class="text-muted">
+        <strong>Comptes de test :</strong><br>
+        admin / 12345 (ROLE_ADMIN)<br>
+        employe / 12345 (ROLE_EMPLOYE)<br>
+        client1 / 12345 (ROLE_CLIENT)
+      </small>
+    </div>
+  </div>
+</div>

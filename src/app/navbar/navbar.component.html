@@ -7,16 +7,30 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item dropdown">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0" *ngIf="auth.isAuthenticated()">
+        <li class="nav-item dropdown" *ngIf="auth.hasRole('ROLE_EMPLOYE') || auth.hasRole('ROLE_ADMIN')">
           <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Clients</a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" routerLink="/clients">Liste des clients</a></li>
             <li><a class="dropdown-item" routerLink="/new-client">Nouveau client</a></li>
           </ul>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="auth.hasRole('ROLE_EMPLOYE') || auth.hasRole('ROLE_ADMIN')">
           <a class="nav-link" routerLink="/contrats">Contrats</a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto" *ngIf="auth.isAuthenticated()">
+        <li class="nav-item">
+          <span class="nav-link text-light">
+            <i class="bi bi-person-circle"></i> {{ auth.getUsername() }}
+            <span class="badge bg-warning text-dark ms-1" *ngFor="let r of auth.getRoles()">{{ r }}</span>
+          </span>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-outline-light btn-sm" (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+          </button>
         </li>
       </ul>
     </div>
